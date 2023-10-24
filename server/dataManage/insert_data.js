@@ -15,48 +15,25 @@ router.get('/poems', async function (req, res) {
     try {
       console.log('Retrieving data');
 
-      const data = await csvtojson.fromFile(__dirname + '/../../data/corpus1.csv', 'utf8');
-      const poems = JSON.parse(data);
+      const results = await csvtojson().fromFile(__dirname + '/../../data/corpus1.csv');
+
 
       console.log('Data retrieved!');
 
-      results = poems;
 
-      console.log('Indexing data...');
+      console.log("Indexing data...");
 
-      results.map(
-        async (results) => (
-          (poemObj = {
-            poemName: results.poemName,
-            poet: results.poet,
-            year: results.year,
-            source: results.source,
-            line: results.line,
-            metaphorPresent: results.metaphorPresent,
-            countMetaphors: results.countMetaphors,
-            metaphoricalTerms: results.metaphoricalTerms,
-            targetDomain: results.targetDomain,
-            sorceDomain: results.sorceDomain,
-            meaning: results.meaning
-            
-          }),
-          await client.index({
-            index: 'poems',
-            body: poemObj
-          })
-        )
-      );
-
-      if (poems.length) {
-        indexData();
-      } else {
-        console.log('Data has been indexed successfully!');
+      for (const record of results) {
+        await client.index({
+          "index": "final_test",
+          "body": record
+        });
       }
+
+      console.log("Data has been indexed successfully!");
     } catch (err) {
       console.log(err);
     }
-
-    console.log('Preparing for the next round of indexing...');
   };
   indexData();
 });
