@@ -4,25 +4,35 @@ import { useState } from 'react';
 import './App.css';
 
 const App = () => {
-  const [chosenType, setChosenType] = useState(null);
-  const [chosenMag, setChosenMag] = useState(null);
+  const [chosenType, setChosenType] = useState('all');
   const [chosenQuery, setChosenQuery] = useState(null);
-  const [chosenDateRange, setChosenDateRange] = useState(null);
-  const [chosenSortOption, setchosenSortOption] = useState(null);
+  const [chosenDateRange, setChosenDateRange] = useState('1970');
   const [documents, setDocuments] = useState(null);
 
   const sendSearchRequest = () => {
-    const results = {
-      method: 'GET',
-      url: 'http://localhost:3001/results',
-      params: {
-        type: chosenType,
-        mag: chosenMag,
-        location: chosenQuery,
-        dateRange: chosenDateRange,
-        sortOption: chosenSortOption,
-      },
-    };
+    var results;
+    if(chosenType !== "all"){
+       results = {
+        method: 'GET',
+        url: 'http://localhost:3001/results',
+        params: {
+          type: chosenType,
+          query: chosenQuery,
+          dateRange: chosenDateRange,
+        },
+      };
+    }else{
+       results = {
+        method: 'GET',
+        url: 'http://localhost:3001/results-all',
+        params: {
+          type: chosenType,
+          query: chosenQuery,
+          dateRange: chosenDateRange,
+        },
+      };
+    }
+   
     axios
       .request(results)
       .then((response) => {
@@ -36,47 +46,31 @@ const App = () => {
 
   return (
     <div className='app'>
-      <nav>
+      <nav> 
         <ul className='nav-bar'>
           <li>කවුකිර</li>
         </ul>
-      </nav>
+      </nav> 
       <p className='directions'>
         {' '}
-       Search for Sinhala Poems with metophors.
+       Search for Sinhala Poems metophors.
       </p>
       <div className='main'>
         <div className='type-selector'>
           <ul>
-            {/* <li>
+            <li>
               <select
+                className='select'
                 name='types'
                 id='types'
                 value={chosenType}
                 onChange={(e) => setChosenType(e.target.value)}
               >
-                <option value={null}>Select a Type</option>
-                <option value='earthquake'>Earthquake</option>
-                <option value='quarry blast'>Quarry Blast</option>
-                <option value='ice quake'>Ice Quake</option>
-                <option value='explosion'>Explosion</option>
+                <option value='all' selected >All</option>
+                <option value='yes'>With Metaphor</option>
+                <option value='no'>Without Metaphor</option>
               </select>
-            </li> */}
-            {/* <li>
-              <select
-                name='mag'
-                id='mag'
-                value={chosenMag}
-                onChange={(e) => setChosenMag(e.target.value)}
-              >
-                <option value={null}>Select magnitude level</option>
-                <option value='2.5'>2.5+</option>
-                <option value='5.5'>5.5+</option>
-                <option value='6.1'>6.1+</option>
-                <option value='7'>7+</option>
-                <option value='8'>8+</option>
-              </select>
-            </li> */}
+            </li>
             <li>
               <form>
                 <label>
@@ -90,32 +84,22 @@ const App = () => {
                 </label>
               </form>
             </li>
-            {/* <li>
+            <li>
               <select
+                className='select'
                 name='dateRange'
                 id='dateRange'
                 value={chosenDateRange}
                 onChange={(e) => setChosenDateRange(e.target.value)}
               >
-                <option value={null}>Select date range</option>
-                <option value='7'>Past 7 Days</option>
-                <option value='14'>Past 14 Days</option>
-                <option value='21'>Past 21 Days</option>
-                <option value='30'>Past 30 Days</option>
+                <option value='2020'>Since 2020</option>
+                <option value='2010'>Since 2010</option>
+                <option value='2000'>Since 2000</option>
+                <option value='1990'>Since 1990</option>
+                <option value='1980'>Since 1980</option>
+                <option value='1970' selected>Since 1970</option>
               </select>
-            </li> */}
-            {/* <li>
-              <select
-                name='sortOption'
-                id='sortOption'
-                value={chosenSortOption}
-                onChange={(e) => setchosenSortOption(e.target.value)}
-              >
-                <option value={null}>Sort by</option>
-                <option value='desc'>Largest Magnitude First</option>
-                <option value='asc'>Smallest Magnitude First</option>
-              </select>
-            </li> */}
+            </li>
             <li>
               <button onClick={sendSearchRequest}>Search</button>
             </li>
@@ -124,22 +108,23 @@ const App = () => {
         {documents && (
           <div className='search-results'>
             {documents.length > 0 ? (
-              <p> Number of hits: {documents.length}</p>
+              <p> Number of results: {documents.length}</p>
             ) : (
               <p> No results found. Try broadening your search criteria.</p>
             )}
             {documents.map((document) => (
               <div className='results-card'>
                 <div className='results-text'>
-                  <p>Type: {document._source.type}</p>
-                  <p>Time: {document._source['@timestamp']}</p>
-                  <p>Location: {document._source.place}</p>
-                  <p>Latitude: {document._source.coordinates.lat}</p>
-                  <p>Longitude: {document._source.coordinates.lon}</p>
-                  <p>Magnitude: {document._source.mag}</p>
-                  <p>Depth: {document._source.depth}</p>
-                  <p>Significance: {document._source.sig}</p>
-                  <p>Event URL: {document._source.url}</p>
+                  <p>Poem Name: {document._source.poemName}</p>
+                  <p>Poet: {document._source.poet}</p>
+                  <p>Source: {document._source.source}</p>
+                  <p>Year: {document._source.year}</p>
+                  <p>Line of the poem: {document._source.line}</p>
+                  <p>Metaphor Count: {document._source.countMetaphors}</p>
+                  <p>Metaphor term: {document._source.metaphoricalTerms}</p>
+                  <p>Target Domain: {document._source.targetDomain}</p> 
+                  <p>Source Domain: {document._source.sorceDomain}</p>
+                  <p>Meaning: {document._source.meaning}</p>
                 </div>
               </div>
             ))}

@@ -17,6 +17,7 @@ router.get('/poems', async function (req, res) {
 
       const results = await csvtojson().fromFile(__dirname + '/../../data/corpus1.csv');
 
+      console.log(results);
 
       console.log('Data retrieved!');
 
@@ -25,7 +26,7 @@ router.get('/poems', async function (req, res) {
 
       for (const record of results) {
         await client.index({
-          "index": "final_test",
+          "index": "poemsz",
           "body": record
         });
       }
