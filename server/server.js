@@ -20,7 +20,7 @@ app.get("/results", (req, res) => {
 
   async function sendESRequest() {
     const body = await client.search({
-      index: "poems",
+      index: "poemsz",
       body: {
         size: 300,
 
@@ -120,6 +120,146 @@ app.get("/results-all", (req, res) => {
                     },
                     {
                       match: {
+                        source: passedQuery,
+                      },
+                    },
+                  ],
+                },
+              },
+              {
+                range: {
+                  year: {
+                    gte: passedDateRange,
+                  },
+                },
+              },
+            ],
+          },
+        },
+        sort: [
+            {
+              countMetaphors: {
+                order: "desc"
+              },
+            },
+          ],
+      },
+    });
+    res.json(body.hits.hits);
+  }
+  sendESRequest();
+});
+
+app.get("/results-with-quotes", (req, res) => {
+  const passedType = req.query.type;
+  const passedQuery = req.query.query;
+  const passedDateRange = req.query.dateRange;
+
+  console.log(req.query);
+
+  async function sendESRequest() {
+    const body = await client.search({
+      index: "poemsz",
+      body: {
+        size: 300,
+
+        query: {
+          bool: {
+            must: [
+              {
+                bool: {
+                  should: [
+                    {
+                      match_phrase: {
+                        poemName: passedQuery,
+                      },
+                    },
+                    {
+                      match_phrase: {
+                        poet: passedQuery,
+                      },
+                    },
+                    {
+                      match_phrase: {
+                        line: passedQuery,
+                      },
+                    },
+                    {
+                      match_phrase: {
+                        source: passedQuery,
+                      },
+                    },
+                  ],
+                },
+              },
+              {
+                term: {
+                  metaphorPresent: {
+                    value: passedType,
+                  },
+                },
+              },
+              {
+                range: {
+                  year: {
+                    gte: passedDateRange,
+                  },
+                },
+              },
+            ],
+          },
+        },
+        sort: [
+          {
+            countMetaphors: {
+              order: "desc"
+            },
+          },
+        ],
+      },
+    });
+    res.json(body.hits.hits);
+  }
+  sendESRequest();
+});
+
+app.get("/results-all-with-quotes", (req, res) => {
+  const passedType = req.query.type;
+  const passedQuery = req.query.query;
+  const passedDateRange = req.query.dateRange;
+
+  console.log(req.query);
+
+  async function sendESRequest() {
+    const body = await client.search({
+      index: "poemsz",
+      body: {
+        size: 300,
+
+        query: {
+          bool: {
+            must: [
+              {
+
+                bool: {
+                  should: [
+                    {
+                      match_phrase: {
+                        poemName: passedQuery,
+                      },
+                    },
+                    {
+                      match_phrase: {
+                        poet: passedQuery,
+                      },
+                    },
+                    {
+                      match_phrase: {
+                        line: passedQuery,
+                      },
+                    },
+                    {
+                      match_phrase: {
                         source: passedQuery,
                       },
                     },

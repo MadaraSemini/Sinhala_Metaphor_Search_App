@@ -14,7 +14,7 @@ const App = () => {
     if(chosenType !== "all"){
        results = {
         method: 'GET',
-        url: 'http://localhost:3001/results',
+        url: chosenQuery.startsWith('"') && chosenQuery.endsWith('"') ? 'http://localhost:3001/results-with-quotes' : 'http://localhost:3001/results',
         params: {
           type: chosenType,
           query: chosenQuery,
@@ -24,7 +24,7 @@ const App = () => {
     }else{
        results = {
         method: 'GET',
-        url: 'http://localhost:3001/results-all',
+        url: chosenQuery.startsWith('"') && chosenQuery.endsWith('"') ? 'http://localhost:3001/results-all-with-quotes' : 'http://localhost:3001/results-all',
         params: {
           type: chosenType,
           query: chosenQuery,
